@@ -87,7 +87,7 @@ public class LocalApp {
             System.out.println("Error creating bucket : " + e.toString());
         }
 //        putJar("/home/malachi/IdeaProjects/ass1/Resources/manager.jar", "manager.jar");
-        putJar("/home/malachi/IdeaProjects/LocalApp/Resources/Worker.jar", "worker.jar");
+        putJar("Resources/Worker.jar", "worker.jar");
     }
 
     private void putJar(String path, String key) {
@@ -150,7 +150,7 @@ public class LocalApp {
 
         // Directory contains files to upload
         // TODO: change path to be relative
-        String directoryName = "/home/malachi/IdeaProjects/LocalApp/Resources/uploads";
+        String directoryName = "Resources/uploads";
         File dir = new File(directoryName);
 
         // Key is the identifier of the task

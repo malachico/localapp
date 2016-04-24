@@ -8,7 +8,10 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -253,10 +256,8 @@ public class LocalApp {
         String output_file_name = args[1];
         String num_files_per_worker = args[2];
 
-//        InputStream input = Utils.class.getResourceAsStream("Resources/AwsCredentials.properties");
         // Create local app
         LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker);
-
 
         // start local app
         local_app.start_local_app();

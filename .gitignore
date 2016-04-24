@@ -1,3 +1,4 @@
+/.gitignore~
 Resources/*
 out/*
 lib/*

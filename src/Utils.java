@@ -11,6 +11,7 @@ import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 import org.apache.commons.codec.binary.Base64;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -64,10 +65,18 @@ class Utils {
         manager_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/manager.jar && java -jar manager.jar 5 >> manager_log.txt";
     }
 
-
+    /**
+     * Initiate credentials from file.
+     * @throws IOException
+     */
     private static void init_credentials() throws IOException {
-        credentials = new PropertiesCredentials(
-                Utils.class.getResourceAsStream("AwsCredentials.properties"));
+        File credentials_file = new File("Resources/AwsCredentials.properties");
+
+        if (!credentials_file.exists()) {
+            throw new IOException("No credential file found.");
+        }
+
+        credentials = new PropertiesCredentials(credentials_file);
     }
 
     private static void init_s3() {

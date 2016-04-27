@@ -47,11 +47,11 @@ public class LocalApp {
             System.out.println("Manager is down, Creating one");
             // upload manager jar file to s3_client
             System.out.println("Uploading jars");
-//            upload_jars();
+            upload_jars();
 
             // start manager
             System.out.println("Starting manager instances");
-//            Utils.manager_instanceId = Utils.createManager();
+            Utils.manager_instanceId = Utils.createManager();
         }
 
         //  Uploads the file to S3.
@@ -67,6 +67,7 @@ public class LocalApp {
         //  Downloads the summary file from S3, and create an html file representing the results.
         ArrayList<String> lines = download_summary(key);
 
+        // TODO: create an http file from results
         for(String line: lines){
             System.out.println(line);
         }
@@ -89,7 +90,8 @@ public class LocalApp {
         } catch (Exception e) {
             System.out.println("Error creating bucket : " + e.toString());
         }
-//        putJar("/home/malachi/IdeaProjects/ass1/Resources/manager.jar", "manager.jar");
+        // TODO: change to relative path
+        putJar("/home/malachi/IdeaProjects/LocalApp/Resources/Manager.jar", "manager.jar");
         putJar("/home/malachi/IdeaProjects/LocalApp/Resources/Worker.jar", "worker.jar");
     }
 

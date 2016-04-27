@@ -243,27 +243,30 @@ public class LocalApp {
      * Send a termination signal to the remote manager.
      */
     private void sendTerminationToManager() {
-        Utils.sqs_client.sendMessage(new SendMessageRequest(Utils.local_manager_queue_url ,"TERMINATE"));
+        Utils.sqs_client.sendMessage(new SendMessageRequest(Utils.local_manager_queue_url, "TERMINATE"));
     }
 
     /**
+     * Localapp executable.
      *
-     * @param args = tweetlinks.txt out.txt n
+     * @param args Arguments:
+     * 0 - String Input file name.
+     * 1 - String output file name.
+     * 2 - Int Files per worker.
      * @throws IOException
      * @throws InterruptedException
      */
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        // extract args input file, output file and num of worker per task
         String input_file_name = args[0];
         String output_file_name = args[1];
         String num_files_per_worker = args[2];
 
-        // Create local app
+        // Create local app.
         LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker);
 
-        // start local app
+        // Start local app.
         local_app.startLocalApp();
     }
 }

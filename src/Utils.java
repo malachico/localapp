@@ -54,15 +54,17 @@ class Utils {
         init_sqs();
 
         worker_user_data = "#!/bin/bash" + "\n";
-        worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0-models.jar && ";
-        worker_user_data += "wget http://repo1.maven.org/maven2/com/googlecode/efficient-java-matrix-library/ejml/0.23/ejml-0.23.jar && ";
-        worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0.jar && ";
-        worker_user_data += "wget http://garr.dl.sourceforge.net/project/jollyday/releases/0.4.7/jollyday-0.4.7.jar && ";
-        worker_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/worker.jar && java -jar worker.jar 5 >> worker_log.txt";
-        worker_user_data += "java -cp .:worker.jar:stanford-corenlp-3.3.0.jar:stanford-corenlp-3.3.0-models.jar:ejml-0.23.jar:jollyday-0.4.7.jar -jar worker.jar";
+        worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0-models.jar" + "\n";
+        worker_user_data += "wget http://repo1.maven.org/maven2/com/googlecode/efficient-java-matrix-library/ejml/0.23/ejml-0.23.jar" + "\n";
+        worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0.jar" + "\n";
+        worker_user_data += "wget http://central.maven.org/maven2/de/jollyday/jollyday/0.4.7/jollyday-0.4.7.jar" + "\n";
+        worker_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/worker.jar" + "\n";
+        worker_user_data += "java -Xms128m -Xmx768M -cp .:worker.jar:stanford-corenlp-3.3.0.jar:stanford-corenlp-3.3.0-models.jar:ejml-0.23.jar:jollyday-0.4.7.jar Analyzer"+ "\n";
+        worker_user_data += "touch done";
 
         manager_user_data = "#!/bin/bash" + "\n";
-        manager_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/manager.jar && java -jar manager.jar 5 >> manager_log.txt";
+        manager_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/manager.jar " + "\n";
+        manager_user_data += "java -jar manager.jar 3";
     }
 
     /**

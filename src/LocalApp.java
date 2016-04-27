@@ -37,17 +37,17 @@ public class LocalApp {
      * @throws IOException
      * @throws InterruptedException
      */
-    private void start_local_app() throws IOException, InterruptedException {
+    private void startLocalApp() throws IOException, InterruptedException {
         //  Checks if a Manager node is active on the EC2 cloud. If it is not, the application will start the manager node.
         System.out.println("Getting manager...");
-        Utils.manager_instanceId = get_manager();
+        Utils.manager_instanceId = getManager();
 
 
         if (Utils.manager_instanceId == null) {
             System.out.println("Manager is down, Creating one");
             // upload manager jar file to s3_client
             System.out.println("Uploading jars");
-            upload_jars();
+            uploadJars();
 
             // start manager
             System.out.println("Starting manager instances");
@@ -56,16 +56,16 @@ public class LocalApp {
 
         //  Uploads the file to S3.
         System.out.println("uploading file to S3...");
-        String key = upload_file_to_storage();
+        String key = uploadFileToStorage();
 
         //  Sends a message to an SQS queue, stating the location of the file on S3
-        acknowledge_file_location(key);
+        acknowledgeFileLocation(key);
 
         //  Checks an SQS queue for a message indicating the process is done and the response (the summary file) is available on S3.
-        wait_for_done(key);
+        waitForDone(key);
 
         //  Downloads the summary file from S3, and create an html file representing the results.
-        ArrayList<String> lines = download_summary(key);
+        ArrayList<String> lines = downloadSummary(key);
 
         // TODO: create an http file from results
         for(String line: lines){
@@ -73,7 +73,7 @@ public class LocalApp {
         }
 
         // Sends a termination message to the Manager if it was supplied as one of its input arguments.
-        send_termination_to_manager();
+        sendTerminationToManager();
 
 
     }
@@ -83,14 +83,15 @@ public class LocalApp {
      * upload to S3 the manager jar to the bucket "malachi-amir-bucket"
      * for the manager EC2 node will be able to download it from there
      */
-    private void upload_jars() {
+    private void uploadJars() {
         String bucket_name = "malachi-amir-bucket";
+
         try {
             Utils.s3_client.createBucket(bucket_name);
         } catch (Exception e) {
             System.out.println("Error creating bucket : " + e.toString());
         }
-        
+
         putJar("Resources/Worker.jar", "worker.jar");
         putJar("Resources/Manager.jar", "manager.jar");
     }
@@ -111,7 +112,7 @@ public class LocalApp {
      *
      * @return manager instance ID if up, else null.
      */
-    private String get_manager() throws IOException {
+    private String getManager() throws IOException {
         DescribeInstancesRequest request = new DescribeInstancesRequest();
         DescribeInstancesResult result = Utils.ec2_client.describeInstances(request);
 
@@ -139,7 +140,7 @@ public class LocalApp {
      * @return key of the file.
      * @throws IOException
      */
-    private String upload_file_to_storage() throws IOException {
+    private String uploadFileToStorage() throws IOException {
         // Create bucket : we have only one bucket, named "malachi-amir-bucket", if exists: log it
         String bucket_name = "malachi-amir-bucket";
         try {
@@ -180,7 +181,7 @@ public class LocalApp {
      *
      * @param key the tweets file key
      */
-    private void acknowledge_file_location(String key) {
+    private void acknowledgeFileLocation(String key) {
         Utils.sqs_client.sendMessage(new SendMessageRequest(Utils.local_manager_queue_url, key));
     }
 
@@ -192,7 +193,7 @@ public class LocalApp {
      * @param key
      * @throws InterruptedException
      */
-    private void wait_for_done(String key) throws InterruptedException {
+    private void waitForDone(String key) throws InterruptedException {
         System.out.println("Receiving messages from answers queue.\n");
 
         while (true) {
@@ -224,7 +225,7 @@ public class LocalApp {
     /**
      * After the manager send done message, then we can download the summary file from S3
      */
-    private ArrayList<String> download_summary(String key) throws IOException {
+    private ArrayList<String> downloadSummary(String key) throws IOException {
         S3Object s3object = Utils.s3_client.getObject(new GetObjectRequest("malachi-amir-bucket", key));
         BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.getObjectContent()));
 
@@ -240,7 +241,7 @@ public class LocalApp {
 
     }
 
-    private void send_termination_to_manager() {
+    private void sendTerminationToManager() {
 //        Utils.ec2_client.terminateInstances(new TerminateInstancesRequest().withInstanceIds(Utils.manager_instanceId));
     }
 
@@ -262,6 +263,6 @@ public class LocalApp {
         LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker);
 
         // start local app
-        local_app.start_local_app();
+        local_app.startLocalApp();
     }
 }

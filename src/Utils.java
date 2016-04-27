@@ -41,29 +41,37 @@ class Utils {
 
 
     static void init() throws IOException {
-        System.out.println("init_credentials");
-        init_credentials();
+        System.out.println("initCredentials");
+        initCredentials();
 
-        System.out.println("init_s3");
-        init_s3();
+        System.out.println("initS3");
+        initS3();
 
-        System.out.println("init_ec2_client");
-        init_ec2_client();
+        System.out.println("initEC2Client");
+        initEC2Client();
 
-        System.out.println("init_sqs");
-        init_sqs();
+        System.out.println("initSqs");
+        initSqs();
 
         worker_user_data = "#!/bin/bash" + "\n";
+        worker_user_data += "echo Starting downloads.";
         worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0-models.jar" + "\n";
+        worker_user_data += "echo 1/5 downloaded.";
         worker_user_data += "wget http://repo1.maven.org/maven2/com/googlecode/efficient-java-matrix-library/ejml/0.23/ejml-0.23.jar" + "\n";
+        worker_user_data += "echo 2/5 downloaded.";
         worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0.jar" + "\n";
+        worker_user_data += "echo 3/5 downloaded.";
         worker_user_data += "wget http://central.maven.org/maven2/de/jollyday/jollyday/0.4.7/jollyday-0.4.7.jar" + "\n";
+        worker_user_data += "echo 4/5 downloaded.";
         worker_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/worker.jar" + "\n";
+        worker_user_data += "echo 5/5 downloaded - Starting build.";
         worker_user_data += "java -Xms128m -Xmx768M -cp .:worker.jar:stanford-corenlp-3.3.0.jar:stanford-corenlp-3.3.0-models.jar:ejml-0.23.jar:jollyday-0.4.7.jar Analyzer"+ "\n";
         worker_user_data += "touch done";
 
         manager_user_data = "#!/bin/bash" + "\n";
+        manager_user_data += "Downloading manager jar.";
         manager_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/manager.jar " + "\n";
+        manager_user_data += "echo Running manager.";
         manager_user_data += "java -jar manager.jar 3";
     }
 
@@ -71,7 +79,7 @@ class Utils {
      * Initiate credentials from file.
      * @throws IOException
      */
-    private static void init_credentials() throws IOException {
+    private static void initCredentials() throws IOException {
         File credentials_file = new File("Resources/AwsCredentials.properties");
 
         if (!credentials_file.exists()) {
@@ -81,11 +89,11 @@ class Utils {
         credentials = new PropertiesCredentials(credentials_file);
     }
 
-    private static void init_s3() {
+    private static void initS3() {
         s3_client = new AmazonS3Client(credentials);
     }
 
-    private static void init_sqs() throws IOException {
+    private static void initSqs() throws IOException {
         // Create a queue
         sqs_client = new AmazonSQSClient(credentials);
 
@@ -98,7 +106,7 @@ class Utils {
     }
 
 
-    private static void init_ec2_client() throws IOException {
+    private static void initEC2Client() throws IOException {
         // Set client connection
         ec2_client = new AmazonEC2Client(credentials);
         ec2_client.setEndpoint("ec2.us-west-2.amazonaws.com");

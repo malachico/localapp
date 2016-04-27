@@ -74,8 +74,6 @@ public class LocalApp {
 
         // Sends a termination message to the Manager if it was supplied as one of its input arguments.
         sendTerminationToManager();
-
-
     }
 
 
@@ -213,7 +211,7 @@ public class LocalApp {
             for (Message message : messages) {
                 // if its name equals to "@key"
                 if (message.getBody().equals(key+"|DONE")) {
-                    // delete message from queue and return
+                    // Delete message from queue and return.
                     Utils.sqs_client.deleteMessage(new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle()));
                     return;
                 }
@@ -241,8 +239,11 @@ public class LocalApp {
 
     }
 
+    /**
+     * Send a termination signal to the remote manager.
+     */
     private void sendTerminationToManager() {
-//        Utils.ec2_client.terminateInstances(new TerminateInstancesRequest().withInstanceIds(Utils.manager_instanceId));
+        Utils.sqs_client.sendMessage(new SendMessageRequest(Utils.local_manager_queue_url ,"TERMINATE"));
     }
 
     /**

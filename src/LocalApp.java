@@ -8,10 +8,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -67,11 +64,20 @@ public class LocalApp {
         //  Downloads the summary file from S3, and create an html file representing the results.
         ArrayList<String> lines = downloadSummary(key);
 
-        // TODO: create an http file from results
-        for(String line: lines){
-            System.out.println(line);
+        BufferedWriter output = null;
+        try {
+            File file = new File(output_file_name);
+            output = new BufferedWriter(new FileWriter(file));
+            output.write(Utils.resultsToHtml(lines));
         }
-
+        catch ( IOException e ) {
+            e.printStackTrace();
+        }
+        finally {
+            if ( output != null ) {
+                output.close();
+            }
+        }
         // Sends a termination message to the Manager if it was supplied as one of its input arguments.
         sendTerminationToManager();
     }

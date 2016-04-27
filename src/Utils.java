@@ -232,8 +232,7 @@ class Utils {
                 ".sentiment-level-3 { color: black; }" +
                 ".sentiment-level-4 { color: lightgreen; }" +
                 ".sentiment-level-5 { color: darkgreen; }" +
-                "</style>" +
-                "</head><body>" +
+                "</style></head><body>" +
                 data +
                 "</body></html>";
     }

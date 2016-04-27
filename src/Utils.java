@@ -14,6 +14,7 @@ import org.apache.commons.codec.binary.Base64;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 /**
  * Created by malachi on 4/9/16.
@@ -200,4 +201,40 @@ class Utils {
         return createEC2Instane("manager", manager_user_data);
     }
 
+    /**
+     * Turns the results to an HTML string.
+     *
+     * @param results
+     *  ArrayList<String> of results from workers.
+     * @return
+     *  HTML-encoded string.
+     */
+    public static String resultsToHtml(ArrayList<String> results) {
+        String data = "";
+        for(String result : results) {
+            // Split the result string. Structure:
+            // 0 - Key.
+            // 1 - Sentiment (1-5).
+            // 2 - Entities.
+            // 3 - Tweet.
+            String[] result_data = result.split("\\|");
+
+
+            data += "<p><div class=\"sentiment-level-" + result_data[1] +
+                    "\">" + result_data[3] + "</div>" +
+                    result_data[2] + "</p><br/>";
+        }
+
+        return "<html><head>" +
+                "<style type=\"text/css\">" +
+                ".sentiment-level-1 { color: darkred; }" +
+                ".sentiment-level-2 { color: red; }" +
+                ".sentiment-level-3 { color: black; }" +
+                ".sentiment-level-4 { color: lightgreen; }" +
+                ".sentiment-level-5 { color: darkgreen; }" +
+                "</type>" +
+                "</head><body>" +
+                data +
+                "</body></html>";
+    }
 }

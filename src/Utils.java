@@ -97,10 +97,10 @@ class Utils {
         // Create a queue
         sqs_client = new AmazonSQSClient(credentials);
 
-        local_manager_queue_url = create_queue("local_manager_queue");
-        manager_local_queue_url = create_queue("manager_local_queue");
-        manager_workers_queue_url= create_queue("manager_workers_queue");
-        workers_manager_queue_url= create_queue("workers_manager_queue");
+        local_manager_queue_url = createQueue("local_manager_queue");
+        manager_local_queue_url = createQueue("manager_local_queue");
+        manager_workers_queue_url= createQueue("manager_workers_queue");
+        workers_manager_queue_url= createQueue("workers_manager_queue");
 //        Utils.clearAllSQS();
 //        System.out.println("CLEARED");
     }
@@ -117,7 +117,7 @@ class Utils {
      * @param name
      * @return queue url named @name
      */
-    private static String create_queue(String name) {
+    private static String createQueue(String name) {
         try {
             CreateQueueRequest createQueueRequest = new CreateQueueRequest(name);
             return sqs_client.createQueue(createQueueRequest).getQueueUrl();

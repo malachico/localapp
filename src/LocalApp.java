@@ -67,6 +67,10 @@ public class LocalApp {
         BufferedWriter output = null;
         try {
             File file = new File(output_file_name);
+            if (file.exists()) {
+                // Clean out old file.
+                file.delete();
+            }
             output = new BufferedWriter(new FileWriter(file));
             output.write(Utils.resultsToHtml(lines));
         }

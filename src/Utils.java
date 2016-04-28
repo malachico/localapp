@@ -33,7 +33,7 @@ class Utils {
     private static final String WORKERS_MANAGER_QUEUE_NAME = "workers_manager_queue";
     private static final String MANAGER_WORKERS_QUEUE_NAME = "manager_workers_queue";
     private static final String CONFIG_AMAZON_EC2_CLIENT_ENDPOINT = "ec2.us-west-2.amazonaws.com";
-    private static final String CONFIG_CREDENTIALS_FILE_NAME = "AwsCredentials.properties";
+    private static final String CONFIG_CREDENTIALS_FILE_NAME = "Resources/AwsCredentials.properties";
     private static final String CONFIG_IMAGE_ID = "ami-c229c0a2";
     private static final String CONFIG_SECURITY_GROUP_IDS = "sg-01a8dd66";
     private static final String CONFIG_KEY_NAME = "kp";

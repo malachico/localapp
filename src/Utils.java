@@ -27,6 +27,17 @@ class Utils {
     static AmazonS3 s3_client;
     static AWSCredentials credentials;
 
+    // Config constants.
+    private static final String LOCAL_MANAGER_QUEUE_NAME = "local_manager_queue";
+    private static final String MANAGER_LOCAL_QUEUE_NAME = "manager_local_queue";
+    private static final String WORKERS_MANAGER_QUEUE_NAME = "workers_manager_queue";
+    private static final String MANAGER_WORKERS_QUEUE_NAME = "manager_workers_queue";
+    private static final String CONFIG_AMAZON_EC2_CLIENT_ENDPOINT = "ec2.us-west-2.amazonaws.com";
+    private static final String CONFIG_CREDENTIALS_FILE_NAME = "AwsCredentials.properties";
+    private static final String CONFIG_IMAGE_ID = "ami-c229c0a2";
+    private static final String CONFIG_SECURITY_GROUP_IDS = "sg-01a8dd66";
+    private static final String CONFIG_KEY_NAME = "kp";
+
     // Queue URL format: x_y_queue_url means x-->y direction queue.
     static String local_manager_queue_url;
     static String manager_local_queue_url;
@@ -83,7 +94,7 @@ class Utils {
      * Initiate credentials from file.
      */
     private static void initCredentials() throws IOException {
-        File credentials_file = new File("Resources/AwsCredentials.properties");
+        File credentials_file = new File(CONFIG_CREDENTIALS_FILE_NAME);
 
         if (!credentials_file.exists()) {
             throw new IOException("No credential file found.");
@@ -100,10 +111,10 @@ class Utils {
         // Create a queue
         sqs_client = new AmazonSQSClient(credentials);
 
-        local_manager_queue_url = getQueue("local_manager_queue");
-        manager_local_queue_url = getQueue("manager_local_queue");
-        manager_workers_queue_url= getQueue("manager_workers_queue");
-        workers_manager_queue_url= getQueue("workers_manager_queue");
+        local_manager_queue_url = getQueue(LOCAL_MANAGER_QUEUE_NAME);
+        manager_local_queue_url = getQueue(MANAGER_LOCAL_QUEUE_NAME);
+        manager_workers_queue_url= getQueue(MANAGER_WORKERS_QUEUE_NAME);
+        workers_manager_queue_url= getQueue(WORKERS_MANAGER_QUEUE_NAME);
 //        Utils.clearAllSQS();
 //        System.out.println("CLEARED");
     }
@@ -112,7 +123,7 @@ class Utils {
     private static void initEC2Client() throws IOException {
         // Set client connection
         ec2_client = new AmazonEC2Client(credentials);
-        ec2_client.setEndpoint("ec2.us-west-2.amazonaws.com");
+        ec2_client.setEndpoint(CONFIG_AMAZON_EC2_CLIENT_ENDPOINT);
     }
 
     /**
@@ -140,12 +151,12 @@ class Utils {
     static String createEC2Instance(String tag, String userData) throws UnsupportedEncodingException {
         // Request for booting machine up with key pair kp
         RunInstancesRequest request = new RunInstancesRequest().
-                withImageId("ami-c229c0a2").
+                withImageId(CONFIG_IMAGE_ID).
                 withMinCount(1).
                 withMaxCount(1).
                 withInstanceType(InstanceType.T2Micro).
-                withKeyName("kp").
-                withSecurityGroupIds("sg-01a8dd66");
+                withKeyName(CONFIG_KEY_NAME).
+                withSecurityGroupIds(CONFIG_SECURITY_GROUP_IDS);
 
         // Base configuration.
         String base64UserData = new String(Base64.encodeBase64(userData.getBytes("UTF-8")), "UTF-8");

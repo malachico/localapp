@@ -81,7 +81,6 @@ class Utils {
 
     /**
      * Initiate credentials from file.
-     * @throws IOException
      */
     private static void initCredentials() throws IOException {
         File credentials_file = new File("Resources/AwsCredentials.properties");

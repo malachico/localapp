@@ -29,65 +29,6 @@ public class LocalApp {
     }
 
     /**
-     * Start local App
-     *
-     * @throws IOException
-     * @throws InterruptedException
-     */
-    private void startLocalApp() throws IOException, InterruptedException {
-        //  Checks if a Manager node is active on the EC2 cloud. If it is not, the application will start the manager node.
-        System.out.println("Getting manager...");
-        Utils.manager_instanceId = getManager();
-
-
-        if (Utils.manager_instanceId == null) {
-            System.out.println("Manager is down, Creating one");
-            // upload manager jar file to s3_client
-            System.out.println("Uploading jars");
-            uploadJars();
-
-            // start manager
-            System.out.println("Starting manager instances");
-            Utils.manager_instanceId = Utils.createManager();
-        }
-
-        //  Uploads the file to S3.
-        System.out.println("uploading file to S3...");
-        String key = uploadFileToStorage();
-
-        //  Sends a message to an SQS queue, stating the location of the file on S3
-        acknowledgeFileLocation(key);
-
-        //  Checks an SQS queue for a message indicating the process is done and the response (the summary file) is available on S3.
-        waitForDone(key);
-
-        //  Downloads the summary file from S3, and create an html file representing the results.
-        ArrayList<String> lines = downloadSummary(key);
-
-        BufferedWriter output = null;
-        try {
-            File file = new File(output_file_name);
-            if (file.exists()) {
-                // Clean out old file.
-                file.delete();
-            }
-            output = new BufferedWriter(new FileWriter(file));
-            output.write(Utils.resultsToHtml(lines));
-        }
-        catch ( IOException e ) {
-            e.printStackTrace();
-        }
-        finally {
-            if ( output != null ) {
-                output.close();
-            }
-        }
-        // Sends a termination message to the Manager if it was supplied as one of its input arguments.
-        sendTerminationToManager();
-    }
-
-
-    /**
      * upload to S3 the manager jar to the bucket "malachi-amir-bucket"
      * for the manager EC2 node will be able to download it from there
      */
@@ -205,27 +146,32 @@ public class LocalApp {
         System.out.println("Receiving messages from answers queue.\n");
 
         while (true) {
-            // Get messages from queue request
+            // Get messages from queue.
             ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(Utils.manager_local_queue_url);
+
             // When pulling item from queue, other machines can't see it for some time. we don't want it here.
             // So change this timeout to 0, so everyone can see everything anytime
             receiveMessageRequest.setVisibilityTimeout(0);
 
-            // Get 10 oldest messages, in case a machine fall, so all the others won't be stuck
+            // Get 10 oldest messages, in case a machine fall, so all the others won't be stuck.
             receiveMessageRequest.setMaxNumberOfMessages(10);
             receiveMessageRequest.getMaxNumberOfMessages();
 
             // Get messages
             List<Message> messages = Utils.sqs_client.receiveMessage(receiveMessageRequest).getMessages();
-            // For each message in queue
             for (Message message : messages) {
-                // if its name equals to "@key"
+                System.out.println("Received a message: " + message.getBody());
+
                 if (message.getBody().equals(key+"|DONE")) {
+                    // The message contains a termination signal.
+
                     // Delete message from queue and return.
                     Utils.sqs_client.deleteMessage(new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle()));
+                    System.out.println("Queue is done, starting termination sequence..");
                     return;
                 }
             }
+
             Thread.sleep(1000);
         }
     }
@@ -256,6 +202,48 @@ public class LocalApp {
         Utils.sqs_client.sendMessage(new SendMessageRequest(Utils.local_manager_queue_url, "TERMINATE"));
     }
 
+
+    /**
+     * Start local App
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    private void startLocalApp() throws IOException, InterruptedException {
+        //  Checks if a Manager node is active on the EC2 cloud. If it is not, the application will start the manager node.
+        System.out.println("Getting manager...");
+        Utils.manager_instanceId = getManager();
+
+
+        if (Utils.manager_instanceId == null) {
+            System.out.println("Manager is down, Creating one");
+            // upload manager jar file to s3_client
+            System.out.println("Uploading jars");
+            uploadJars();
+
+            // start manager
+            System.out.println("Starting manager instances");
+            Utils.manager_instanceId = Utils.createManager();
+        }
+
+        //  Uploads the file to S3.
+        System.out.println("uploading file to S3...");
+        String key = uploadFileToStorage();
+
+        //  Sends a message to an SQS queue, stating the location of the file on S3
+        acknowledgeFileLocation(key);
+
+        //  Checks an SQS queue for a message indicating the process is done and the response (the summary file) is available on S3.
+        waitForDone(key);
+
+        //  Downloads the summary file from S3, and create an HTML file representing the results.
+        ArrayList<String> lines = downloadSummary(key);
+        Utils.exportToHTMLFile(lines, output_file_name);
+
+        // Sends a termination message to the Manager if it was supplied as one of its input arguments.
+        sendTerminationToManager();
+    }
+
     /**
      * Localapp executable.
      *
@@ -266,7 +254,6 @@ public class LocalApp {
      * @throws IOException
      * @throws InterruptedException
      */
-
     public static void main(String[] args) throws IOException, InterruptedException {
 
         String input_file_name = args[0];

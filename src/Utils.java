@@ -215,6 +215,19 @@ class Utils {
         return createEC2Instance("manager", manager_user_data);
     }
 
+    public static void exportToHTMLFile(ArrayList<String> lines, String output_file_name) throws IOException {
+        BufferedWriter output;
+        File file = new File(output_file_name);
+        if (file.exists()) {
+            // Clean out old file.
+            file.delete();
+        }
+
+        output = new BufferedWriter(new FileWriter(file));
+        output.write(Utils.resultsToHtml(lines));
+        output.close();
+    }
+
     /**
      * Turns the results to an HTML string.
      *

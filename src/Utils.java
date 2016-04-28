@@ -101,10 +101,10 @@ class Utils {
         // Create a queue
         sqs_client = new AmazonSQSClient(credentials);
 
-        local_manager_queue_url = createQueue("local_manager_queue");
-        manager_local_queue_url = createQueue("manager_local_queue");
-        manager_workers_queue_url= createQueue("manager_workers_queue");
-        workers_manager_queue_url= createQueue("workers_manager_queue");
+        local_manager_queue_url = getQueue("local_manager_queue");
+        manager_local_queue_url = getQueue("manager_local_queue");
+        manager_workers_queue_url= getQueue("manager_workers_queue");
+        workers_manager_queue_url= getQueue("workers_manager_queue");
 //        Utils.clearAllSQS();
 //        System.out.println("CLEARED");
     }
@@ -117,19 +117,20 @@ class Utils {
     }
 
     /**
-     * create queue named give param name, if already exists, return the existing queue.
-     * @param name
-     * @return queue url named @name
+     * Gets a queue by name. Creates one if does not exist.
+     *
+     * @param name Name of the queue.
+     * @return Queue URL.
      */
-    private static String createQueue(String name) {
+    private static String getQueue(String name) {
         try {
             CreateQueueRequest createQueueRequest = new CreateQueueRequest(name);
             return sqs_client.createQueue(createQueueRequest).getQueueUrl();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return sqs_client.getQueueUrl(name).getQueueUrl();
         }
     }
-
 
     /**
      *
@@ -137,7 +138,7 @@ class Utils {
      * @param userData : user data for machine
      * @return String instance ID of created machine
      */
-    static String createEC2Instane(String tag, String userData) throws UnsupportedEncodingException {
+    static String createEC2Instance(String tag, String userData) throws UnsupportedEncodingException {
         // Request for booting machine up with key pair kp
         RunInstancesRequest request = new RunInstancesRequest().
                 withImageId("ami-c229c0a2").
@@ -197,11 +198,11 @@ class Utils {
     }
 
     public static String createWorker() throws UnsupportedEncodingException {
-        return createEC2Instane("worker", worker_user_data);
+        return createEC2Instance("worker", worker_user_data);
     }
 
     public static String createManager() throws UnsupportedEncodingException {
-        return createEC2Instane("manager", manager_user_data);
+        return createEC2Instance("manager", manager_user_data);
     }
 
     /**

@@ -20,6 +20,7 @@ public class LocalApp {
     private String input_file_name;
     private String output_file_name;
     private int num_tasks_per_worker;
+    public static final String BUCKET_NAME = "malachi-amir-bucket";
 
 
     private LocalApp(String input_file_name, String output_file_name, String num_file_per_worker) throws IOException {
@@ -35,10 +36,9 @@ public class LocalApp {
      * for the manager EC2 node will be able to download it from there
      */
     private void uploadJars() {
-        String bucket_name = "malachi-amir-bucket";
 
         try {
-            Utils.s3_client.createBucket(bucket_name);
+            Utils.s3_client.createBucket(BUCKET_NAME);
         } catch (Exception e) {
             System.out.println("Error creating bucket : " + e.toString());
         }
@@ -50,7 +50,11 @@ public class LocalApp {
     private void putJar(String path, String key) {
         // Put object in bucket request
         File jar_file = new File(path);
-        PutObjectRequest req = new PutObjectRequest("malachi-amir-bucket", key, jar_file);
+        if (!jar_file.exists()) {
+            System.out.println("Can't find jar file: " + jar_file.getAbsolutePath());
+        }
+
+        PutObjectRequest req = new PutObjectRequest(BUCKET_NAME, key, jar_file);
 
         // Set permission so everyone can download object, so the manager wil be able to download the object
         req.setCannedAcl(CannedAccessControlList.PublicRead);

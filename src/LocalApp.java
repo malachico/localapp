@@ -56,7 +56,7 @@ public class LocalApp {
 
         PutObjectRequest req = new PutObjectRequest(BUCKET_NAME, key, jar_file);
 
-        // Set permission so everyone can download object, so the manager wil be able to download the object
+        // Set permission so everyone can download object, so the manager wil be able to download the object.
         req.setCannedAcl(CannedAccessControlList.PublicRead);
         Utils.s3_client.putObject(req);
     }
@@ -106,6 +106,7 @@ public class LocalApp {
 
         // The key is the filename within the bucket
         String key = null;
+        String tweet_file_key = "";
 
         System.out.println("Uploading files to S3.\n");
 
@@ -117,13 +118,16 @@ public class LocalApp {
         for (File file : dir.listFiles()) {
             key = file.getName();
 
+            if (key.contains("tweet")) {
+                tweet_file_key = key;
+            }
             // Put file in bucket
             PutObjectRequest req = new PutObjectRequest(bucket_name, key, file);
             Utils.s3_client.putObject(req);
 
             System.out.println("Uploaded file: " + file.getName());
         }
-        return key;
+        return tweet_file_key;
     }
 
     /**

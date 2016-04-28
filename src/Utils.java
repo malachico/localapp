@@ -148,33 +148,28 @@ class Utils {
                 withKeyName("kp").
                 withSecurityGroupIds("sg-01a8dd66");
 
-        // set user data in order to run whatever we want
+        // Base configuration.
         String base64UserData = new String(Base64.encodeBase64(userData.getBytes("UTF-8")), "UTF-8");
         request.setUserData(base64UserData);
         RunInstancesResult runInstancesResult = Utils.ec2_client.runInstances(request);
 
-        // get the id of the created instance
+        // Save ID locally.
         String instancesId = runInstancesResult.getReservation().getInstances().get(0).getInstanceId();
 
-        // Tag the instance
+        // Tag the remote instance.
         tagInstance(instancesId, "name", tag);
 
         return instancesId;
     }
 
+
     /**
-     * Giving name (=tag) to an instance, in order to know if it is a manager / worker
+     * Tag a remote instance.
      *
-     * @param instanceId
-     * the instance to tag
-     *
-     * @param tag
-     * the tag to give to the instance ( example: "name" )
-     *
-     * @param value
-     * the value of the tag ( example: "worker" )
+     * @param instanceId the instance to tag
+     * @param tag        the tag to give to the instance ( example: "name" )
+     * @param value      the value of the tag ( example: "worker" )
      */
-    //
     public static void tagInstance(String instanceId, String tag, String value) {
         CreateTagsRequest request = new CreateTagsRequest();
         request = request.withResources(instanceId)
@@ -182,25 +177,30 @@ class Utils {
         Utils.ec2_client.createTags(request);
     }
 
+
     /**
-     * Clear queue for debugging..
+     * Clear queue for debugging.
      */
     public static void clearSQS(String queueUrl){
         sqs_client.purgeQueue(new PurgeQueueRequest(queueUrl));
 
     }
 
-    public static void clearAllSQS(){
+    /**
+     * Debug only; Clear all queues.
+     */
+    public static void clearAllSQS() {
         Utils.clearSQS(Utils.manager_local_queue_url);
         Utils.clearSQS(Utils.local_manager_queue_url);
         Utils.clearSQS(Utils.manager_workers_queue_url);
         Utils.clearSQS(Utils.workers_manager_queue_url);
+        System.out.println("ALL SQS CLEARED");
     }
 
-    public static String createWorker() throws UnsupportedEncodingException {
-        return createEC2Instance("worker", worker_user_data);
-    }
-
+    /**
+     * Create a new manager instance.
+     * @return manager instance.
+     */
     public static String createManager() throws UnsupportedEncodingException {
         return createEC2Instance("manager", manager_user_data);
     }
@@ -224,7 +224,8 @@ class Utils {
             String[] result_data = result.split("\\|");
 
 
-            data += "<p><div class=\"sentiment-level-" + result_data[1] +
+            data += "<p><div class=\"sentiment-level-" +
+                    result_data[1] +
                     "\">" + result_data[3] + "</div>" +
                     result_data[2] + "</p><br/>";
         }

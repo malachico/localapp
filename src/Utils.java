@@ -250,7 +250,7 @@ class Utils {
             data += "<p><div class=\"sentiment-level-" +
                     result_data[1] +
                     "\">" + result_data[3] + "</div>" +
-                    result_data[2] + "</p><br/>";
+                    result_data[2] + "</p>";
         }
 
         return "<html><head>" +
@@ -264,4 +264,7 @@ class Utils {
                 data +
                 "</body></html>";
     }
+
+
+    // @malchico FIXME: Remove done message from manager_local_queue when terminating.
 }

@@ -167,7 +167,7 @@ class Utils {
         String instancesId = runInstancesResult.getReservation().getInstances().get(0).getInstanceId();
 
         // Tag the remote instance.
-        tagInstance(instancesId, "name", tag);
+        tagInstance(instancesId, "Name", tag);
 
         return instancesId;
     }
@@ -177,7 +177,7 @@ class Utils {
      * Tag a remote instance.
      *
      * @param instanceId the instance to tag
-     * @param tag        the tag to give to the instance ( example: "name" )
+     * @param tag        the tag to give to the instance ( example: "Name" )
      * @param value      the value of the tag ( example: "worker" )
      */
     public static void tagInstance(String instanceId, String tag, String value) {

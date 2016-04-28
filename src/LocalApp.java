@@ -8,10 +8,12 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 
 public class LocalApp {
@@ -73,7 +75,7 @@ public class LocalApp {
                 if ((instance.getState().getCode() == 0) || (instance.getState().getCode() == 16)) { //  0 pending or  16 running
                     List<Tag> tags = instance.getTags();
                     for (Tag tag : tags) {
-                        if (tag.getKey().equals("name") && tag.getValue().equals("manager"))
+                        if (tag.getKey().equals("Name") && tag.getValue().equals("manager"))
                             return instance.getInstanceId();
                     }
                 }
@@ -101,25 +103,21 @@ public class LocalApp {
         // The key is the filename within the bucket
         String key = null;
 
-        System.out.println("Uploading tweets file to S3...\n");
+        System.out.println("Uploading files to S3.\n");
 
         // Directory contains files to upload
-        // TODO: change path to be relative
         String directoryName = "Resources/uploads";
         File dir = new File(directoryName);
 
         // Key is the identifier of the task
         for (File file : dir.listFiles()) {
-            if(!file.getName().equals(this.input_file_name)) {
-                continue;
-            }
-            // Generate random num, for unique key
-            Random rand = new Random();
-            key = rand.nextInt(Integer.MAX_VALUE) + "";
+            key = file.getName();
 
             // Put file in bucket
             PutObjectRequest req = new PutObjectRequest(bucket_name, key, file);
             Utils.s3_client.putObject(req);
+
+            System.out.println("Uploaded file: " + file.getName());
         }
         return key;
     }
@@ -167,7 +165,7 @@ public class LocalApp {
 
                     // Delete message from queue and return.
                     Utils.sqs_client.deleteMessage(new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle()));
-                    System.out.println("Queue is done, starting termination sequence..");
+                    System.out.println("Queue is done, starting termination sequence.");
                     return;
                 }
             }
@@ -211,23 +209,22 @@ public class LocalApp {
      */
     private void startLocalApp() throws IOException, InterruptedException {
         //  Checks if a Manager node is active on the EC2 cloud. If it is not, the application will start the manager node.
-        System.out.println("Getting manager...");
+        System.out.println("Getting manager.");
         Utils.manager_instanceId = getManager();
 
 
         if (Utils.manager_instanceId == null) {
-            System.out.println("Manager is down, Creating one");
+            System.out.println("Manager is down, creating one.");
             // upload manager jar file to s3_client
-            System.out.println("Uploading jars");
+            System.out.println("Uploading jars.");
             uploadJars();
 
             // start manager
-            System.out.println("Starting manager instances");
+            System.out.println("Starting manager instances.");
             Utils.manager_instanceId = Utils.createManager();
         }
 
         //  Uploads the file to S3.
-        System.out.println("uploading file to S3...");
         String key = uploadFileToStorage();
 
         //  Sends a message to an SQS queue, stating the location of the file on S3

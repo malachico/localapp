@@ -11,9 +11,7 @@ import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 import org.apache.commons.codec.binary.Base64;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -29,51 +27,56 @@ class Utils {
     static AmazonS3 s3_client;
     static AWSCredentials credentials;
 
-    // queue urls: x_y_queue_url means x-->y direction queue
+    // Queue URL format: x_y_queue_url means x-->y direction queue.
     static String local_manager_queue_url;
     static String manager_local_queue_url;
     static String workers_manager_queue_url;
     static String manager_workers_queue_url;
 
+    // Bash files content.
     public static String worker_user_data;
-
     public static String manager_user_data;
 
 
-
     static void init() throws IOException {
-        System.out.println("initCredentials");
+        System.out.println("Init Credentials");
         initCredentials();
 
-        System.out.println("initS3");
+        System.out.println("Init S3");
         initS3();
 
-        System.out.println("initEC2Client");
+        System.out.println("Init Ec2Client");
         initEC2Client();
 
-        System.out.println("initSqs");
+        System.out.println("Init SQS");
         initSqs();
 
-        worker_user_data = "#!/bin/bash" + "\n";
-        worker_user_data += "echo Starting downloads.";
-        worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0-models.jar" + "\n";
-        worker_user_data += "echo 1/5 downloaded.";
-        worker_user_data += "wget http://repo1.maven.org/maven2/com/googlecode/efficient-java-matrix-library/ejml/0.23/ejml-0.23.jar" + "\n";
-        worker_user_data += "echo 2/5 downloaded.";
-        worker_user_data += "wget http://repo1.maven.org/maven2/edu/stanford/nlp/stanford-corenlp/3.3.0/stanford-corenlp-3.3.0.jar" + "\n";
-        worker_user_data += "echo 3/5 downloaded.";
-        worker_user_data += "wget http://central.maven.org/maven2/de/jollyday/jollyday/0.4.7/jollyday-0.4.7.jar" + "\n";
-        worker_user_data += "echo 4/5 downloaded.";
-        worker_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/worker.jar" + "\n";
-        worker_user_data += "echo 5/5 downloaded - Starting build.";
-        worker_user_data += "java -Xms128m -Xmx768M -cp .:worker.jar:stanford-corenlp-3.3.0.jar:stanford-corenlp-3.3.0-models.jar:ejml-0.23.jar:jollyday-0.4.7.jar Analyzer"+ "\n";
-        worker_user_data += "touch done";
+        // Load worker and manager data from file.
+        worker_user_data = loadFromFile("Resources/worker.sh");
+        manager_user_data = loadFromFile("Resources/manager.sh");
+    }
 
-        manager_user_data = "#!/bin/bash" + "\n";
-        manager_user_data += "Downloading manager jar.";
-        manager_user_data += "wget http://malachi-amir-bucket.s3.amazonaws.com/manager.jar " + "\n";
-        manager_user_data += "echo Running manager.";
-        manager_user_data += "java -jar manager.jar 3";
+    /**
+     * Load file data into a string.
+     *
+     * @param filePath
+     * @return file's data.
+     * @throws IOException
+     */
+    private static String loadFromFile(String filePath)  throws IOException {
+        String data = "";
+        BufferedReader reader = null;
+        String currentLine;
+
+        reader = new BufferedReader(new FileReader(filePath));
+        while ((currentLine = reader.readLine()) != null) {
+            data += currentLine + "\n";
+        }
+        if (reader != null) {
+            reader.close();
+        }
+
+        return data;
     }
 
     /**

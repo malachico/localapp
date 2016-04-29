@@ -246,6 +246,7 @@ public class LocalApp {
 
         // Sends a termination message to the Manager if it was supplied as one of its input arguments.
         if(terminate) {
+            System.out.println("Send termination to manager");
             sendTerminationToManager();
         }
     }

@@ -12,6 +12,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -211,10 +215,11 @@ public class LocalApp {
     /**
      * Start local App
      *
+     * @param terminate
      * @throws IOException
      * @throws InterruptedException
      */
-    private void startLocalApp() throws IOException, InterruptedException {
+    private void startLocalApp(boolean terminate) throws IOException, InterruptedException {
         //  Checks if a Manager node is active on the EC2 cloud. If it is not, the application will start the manager node.
         System.out.println("Getting manager.");
         Utils.manager_instanceId = getManager();
@@ -236,7 +241,7 @@ public class LocalApp {
 
         //  Sends a message to an SQS queue, stating the location of the file on S3
         //if terminate arg is supplied, then acknowledge the manager
-        if (terminate) {
+        if (this.terminate) {
             acknowledgeFileLocation("TERMINATE|" + key);
         } else {
             acknowledgeFileLocation(key);
@@ -249,6 +254,37 @@ public class LocalApp {
         //  Downloads the summary file from S3, and create an HTML file representing the results.
         ArrayList<String> lines = downloadSummary(key);
         Utils.exportToHTMLFile(lines, output_file_name);
+
+
+        if (terminate) {
+            // Download Stat file from S3
+            S3Object s3object = null;
+            while (s3object == null) {
+                s3object = Utils.s3_client.getObject(new GetObjectRequest(BUCKET_NAME, key + "|STATS"));
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.getObjectContent()));
+
+            lines.clear();
+
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+            // Remove file from S3
+            Utils.s3_client.deleteObject(BUCKET_NAME, key + "|STATS");
+
+            // Write stats to file
+            Path results_file_path = Paths.get("Stats");
+            try {
+                Files.write(results_file_path, lines, Charset.forName("UTF-8"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // Kill manager instance
+            Utils.ec2_client.terminateInstances(new TerminateInstancesRequest().withInstanceIds(getManager()));
+        }
     }
 
     /**
@@ -281,6 +317,6 @@ public class LocalApp {
         LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker, terminate);
 
         // Start local app.
-        local_app.startLocalApp();
+        local_app.startLocalApp(terminate);
     }
 }

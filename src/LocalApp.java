@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class LocalApp {
@@ -106,8 +107,8 @@ public class LocalApp {
         }
 
         // The key is the filename within the bucket
-        String key = null;
-        String tweet_file_key = "";
+        Random randomGenerator = new Random();
+        String key = "";
 
         System.out.println("Uploading files to S3.\n");
 
@@ -117,18 +118,17 @@ public class LocalApp {
 
         // Key is the identifier of the task
         for (File file : dir.listFiles()) {
-            key = file.getName();
+            key = randomGenerator.nextInt(Integer.MAX_VALUE) + "";
 
-            if (key.contains("tweet")) {
-                tweet_file_key = key;
-            }
             // Put file in bucket
             PutObjectRequest req = new PutObjectRequest(bucket_name, key, file);
             Utils.s3_client.putObject(req);
 
             System.out.println("Uploaded file: " + file.getName());
+            System.out.println("Generated key: " + key);
+
         }
-        return tweet_file_key;
+        return key;
     }
 
     /**

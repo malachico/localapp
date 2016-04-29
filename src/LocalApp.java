@@ -110,7 +110,7 @@ public class LocalApp {
         Random randomGenerator = new Random();
         String key = "";
 
-        System.out.println("Uploading files to S3.\n");
+        System.out.println("Uploading files to S3.");
 
         // Directory contains files to upload
         String directoryName = "Resources/uploads";
@@ -160,10 +160,6 @@ public class LocalApp {
             // So change this timeout to 0, so everyone can see everything anytime
             receiveMessageRequest.setVisibilityTimeout(0);
 
-            // Get 10 oldest messages, in case a machine fall, so all the others won't be stuck.
-            receiveMessageRequest.setMaxNumberOfMessages(10);
-            receiveMessageRequest.getMaxNumberOfMessages();
-
             // Get messages
             List<Message> messages = Utils.sqs_client.receiveMessage(receiveMessageRequest).getMessages();
             for (Message message : messages) {
@@ -173,7 +169,9 @@ public class LocalApp {
                     // The message says that the task is done.
 
                     // Delete message from queue and return.
-                    Utils.sqs_client.deleteMessage(new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle()));
+                    DeleteMessageRequest dms = new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle());
+                    Utils.sqs_client.deleteMessage(dms);
+
                     System.out.println("Queue is done, starting termination sequence.");
                     return;
                 }

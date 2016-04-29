@@ -275,6 +275,7 @@ public class LocalApp {
             Utils.s3_client.deleteObject(BUCKET_NAME, key + "|STATS");
 
             // Write stats to file
+            System.out.println("Writing stats to file");
             Path results_file_path = Paths.get("Stats");
             try {
                 Files.write(results_file_path, lines, Charset.forName("UTF-8"));
@@ -283,6 +284,7 @@ public class LocalApp {
             }
 
             // Kill manager instance
+            System.out.println("Killing manager");
             Utils.ec2_client.terminateInstances(new TerminateInstancesRequest().withInstanceIds(getManager()));
         }
     }

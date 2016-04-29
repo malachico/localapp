@@ -264,7 +264,4 @@ class Utils {
                 data +
                 "</body></html>";
     }
-
-
-    // @malchico FIXME: Remove done message from manager_local_queue when terminating.
 }

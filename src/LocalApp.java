@@ -20,12 +20,13 @@ public class LocalApp {
     private String input_file_name;
     private String output_file_name;
     private int num_tasks_per_worker;
+    private boolean terminate;
     public static final String BUCKET_NAME = "malachi-amir-bucket";
 
 
-    private LocalApp(String input_file_name, String output_file_name, String num_file_per_worker) throws IOException {
+    private LocalApp(String input_file_name, String output_file_name, String num_file_per_worker, boolean terminate) throws IOException {
         Utils.init();
-
+        this.terminate = terminate;
         this.input_file_name = input_file_name;
         this.output_file_name =  output_file_name;
         this.num_tasks_per_worker = Integer.parseInt(num_file_per_worker);
@@ -169,7 +170,7 @@ public class LocalApp {
                 System.out.println("Received a message: " + message.getBody());
 
                 if (message.getBody().equals(key+"|DONE")) {
-                    // The message contains a termination signal.
+                    // The message says that the task is done.
 
                     // Delete message from queue and return.
                     Utils.sqs_client.deleteMessage(new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle()));
@@ -246,7 +247,9 @@ public class LocalApp {
         Utils.exportToHTMLFile(lines, output_file_name);
 
         // Sends a termination message to the Manager if it was supplied as one of its input arguments.
-        sendTerminationToManager();
+        if(terminate) {
+            sendTerminationToManager();
+        }
     }
 
     /**
@@ -265,8 +268,19 @@ public class LocalApp {
         String output_file_name = args[1];
         String num_files_per_worker = args[2];
 
+        // Flag which represents if to terminate the app
+        boolean terminate = false;
+
+        // Check if termination is supplied as one of the args
+        for (int i = 0; i< args.length; i++)
+        {
+            if(args[i].equals("terminate")){
+                terminate = true;
+            }
+        }
+
         // Create local app.
-        LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker);
+        LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker, terminate);
 
         // Start local app.
         local_app.startLocalApp();

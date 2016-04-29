@@ -29,7 +29,7 @@ public class LocalApp {
         Utils.init();
         this.terminate = terminate;
         this.input_file_name = input_file_name;
-        this.output_file_name =  output_file_name;
+        this.output_file_name = output_file_name;
         this.num_tasks_per_worker = Integer.parseInt(num_file_per_worker);
     }
 
@@ -165,7 +165,7 @@ public class LocalApp {
             for (Message message : messages) {
                 System.out.println("Received a message: " + message.getBody());
 
-                if (message.getBody().equals(key+"|DONE")) {
+                if (message.getBody().equals(key + "|DONE")) {
                     // The message says that the task is done.
 
                     // Delete message from queue and return.
@@ -245,7 +245,7 @@ public class LocalApp {
         Utils.exportToHTMLFile(lines, output_file_name);
 
         // Sends a termination message to the Manager if it was supplied as one of its input arguments.
-        if(terminate) {
+        if (terminate) {
             System.out.println("Send termination to manager");
             sendTerminationToManager();
         }
@@ -255,9 +255,9 @@ public class LocalApp {
      * Localapp executable.
      *
      * @param args Arguments:
-     * 0 - String Input file name.
-     * 1 - String output file name.
-     * 2 - Int Files per worker.
+     *             0 - String Input file name.
+     *             1 - String output file name.
+     *             2 - Int Files per worker.
      * @throws IOException
      * @throws InterruptedException
      */
@@ -271,9 +271,8 @@ public class LocalApp {
         boolean terminate = false;
 
         // Check if termination is supplied as one of the args
-        for (int i = 0; i< args.length; i++)
-        {
-            if(args[i].equals("terminate")){
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("terminate")) {
                 terminate = true;
             }
         }

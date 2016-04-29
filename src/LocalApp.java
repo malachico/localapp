@@ -224,7 +224,7 @@ public class LocalApp {
             System.out.println("Manager is down, creating one.");
             // upload manager jar file to s3_client
             System.out.println("Uploading jars.");
-            uploadJars();
+//            uploadJars();
 
             // start manager
             System.out.println("Starting manager instances.");
@@ -235,7 +235,13 @@ public class LocalApp {
         String key = uploadFileToStorage();
 
         //  Sends a message to an SQS queue, stating the location of the file on S3
-        acknowledgeFileLocation(key);
+        //if terminate arg is supplied, then acknowledge the manager
+        if (terminate) {
+            acknowledgeFileLocation("TERMINATE|" + key);
+        } else {
+            acknowledgeFileLocation(key);
+        }
+
 
         //  Checks an SQS queue for a message indicating the process is done and the response (the summary file) is available on S3.
         waitForDone(key);
@@ -243,12 +249,6 @@ public class LocalApp {
         //  Downloads the summary file from S3, and create an HTML file representing the results.
         ArrayList<String> lines = downloadSummary(key);
         Utils.exportToHTMLFile(lines, output_file_name);
-
-        // Sends a termination message to the Manager if it was supplied as one of its input arguments.
-        if (terminate) {
-            System.out.println("Send termination to manager");
-            sendTerminationToManager();
-        }
     }
 
     /**

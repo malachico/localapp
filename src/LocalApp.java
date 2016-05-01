@@ -30,7 +30,7 @@ public class LocalApp {
 
 
     private LocalApp(String input_file_name, String output_file_name, String num_file_per_worker, boolean terminate) throws IOException {
-        Utils.init();
+        Utils.init(num_file_per_worker);
         this.terminate = terminate;
         this.input_file_name = input_file_name;
         this.output_file_name = output_file_name;
@@ -303,7 +303,7 @@ public class LocalApp {
 
         String input_file_name = args[0];
         String output_file_name = args[1];
-        String num_files_per_worker = args[2];
+        String missions_per_worker = args[2];
 
         // Flag which represents if to terminate the app
         boolean terminate = false;
@@ -316,7 +316,7 @@ public class LocalApp {
         }
 
         // Create local app.
-        LocalApp local_app = new LocalApp(input_file_name, output_file_name, num_files_per_worker, terminate);
+        LocalApp local_app = new LocalApp(input_file_name, output_file_name, missions_per_worker, terminate);
 
         // Start local app.
         local_app.startLocalApp(terminate);

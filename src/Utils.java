@@ -15,8 +15,6 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * Created by malachi on 4/9/16.
- *
  * Common Amazon objects for local app, manager and workers for saving code
  */
 class Utils {
@@ -38,6 +36,9 @@ class Utils {
     private static final String CONFIG_SECURITY_GROUP_IDS = "sg-01a8dd66";
     private static final String CONFIG_KEY_NAME = "kp";
 
+    // Bash variables.
+    private static final String BASH_MISSIONS_PER_WORKER = "$$missionsPerWorker$$";
+
     // Queue URL format: x_y_queue_url means x-->y direction queue.
     static String local_manager_queue_url;
     static String manager_local_queue_url;
@@ -49,7 +50,7 @@ class Utils {
     public static String manager_user_data;
 
 
-    static void init() throws IOException {
+    static void init(String missions_per_worker) throws IOException {
         System.out.println("Init Credentials");
         initCredentials();
 
@@ -65,6 +66,7 @@ class Utils {
         // Load worker and manager data from file.
         worker_user_data = loadFromFile("Resources/worker.sh");
         manager_user_data = loadFromFile("Resources/manager.sh");
+        manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
     }
 
     /**

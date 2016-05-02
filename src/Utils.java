@@ -47,7 +47,6 @@ class Utils {
     static String manager_workers_queue_url;
 
     // Bash files content.
-    public static String worker_user_data;
     public static String manager_user_data;
 
 
@@ -58,14 +57,13 @@ class Utils {
         System.out.println("Init S3");
         initS3();
 
-        System.out.println("Init Ec2Client");
+        System.out.println("Init EC2 Client");
         initEC2Client();
 
         System.out.println("Init SQS");
         initSqs();
 
         // Load worker and manager data from file.
-        worker_user_data = loadFromFile("Resources/worker.sh");
         manager_user_data = loadFromFile("Resources/manager.sh");
         manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
     }

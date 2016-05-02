@@ -49,8 +49,8 @@ public class LocalApp {
             System.out.println("Error creating bucket : " + e.toString());
         }
 
-        putJar("Resources/Worker.jar", "worker.jar");
-        putJar("Resources/Manager.jar", "manager.jar");
+        putJar("Resources/Worker.enc", "worker.enc");
+        putJar("Resources/Manager.enc", "manager.enc");
     }
 
     private void putJar(String path, String key) {

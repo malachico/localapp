@@ -128,15 +128,16 @@ public class LocalApp {
 
         // Key is the identifier of the task
         for (File file : dir.listFiles()) {
-            key = randomGenerator.nextInt(Integer.MAX_VALUE) + "";
+            String file_name = file.getName();
 
-            if (file.getName().contains(".sh")) {
-                // Save bash files with their own name as key.
-                key = file.getName();
+            if (!file.getName().contains(".sh")) {
+                // This is the tweet file.
+                key = randomGenerator.nextInt(Integer.MAX_VALUE) + "";
+                file_name = key;
             }
 
-            // Put file in bucket
-            PutObjectRequest request = new PutObjectRequest(bucket_name, key, file);
+            // Put file in bucket.
+            PutObjectRequest request = new PutObjectRequest(bucket_name, file_name, file);
             Utils.s3_client.putObject(request);
 
             System.out.println("Uploaded file: " + file.getName());
@@ -238,7 +239,7 @@ public class LocalApp {
             System.out.println("Manager is down, creating one.");
             // upload manager jar file to s3_client
             System.out.println("Uploading jars.");
-//            uploadJars();
+            uploadJars();
 
             // start manager
             System.out.println("Starting manager instances.");
@@ -252,7 +253,8 @@ public class LocalApp {
         //if terminate arg is supplied, then acknowledge the manager
         if (this.terminate) {
             acknowledgeFileLocation("TERMINATE|" + key);
-        } else {
+        }
+        else {
             acknowledgeFileLocation(key);
         }
 

@@ -130,6 +130,11 @@ public class LocalApp {
         for (File file : dir.listFiles()) {
             key = randomGenerator.nextInt(Integer.MAX_VALUE) + "";
 
+            if (file.getName().contains(".sh")) {
+                // Save bash files with their own name as key.
+                key = file.getName();
+            }
+
             // Put file in bucket
             PutObjectRequest request = new PutObjectRequest(bucket_name, key, file);
             Utils.s3_client.putObject(request);
@@ -229,12 +234,11 @@ public class LocalApp {
         System.out.println("Getting manager.");
         Utils.manager_instanceId = getManager();
 
-
         if (Utils.manager_instanceId == null) {
             System.out.println("Manager is down, creating one.");
             // upload manager jar file to s3_client
             System.out.println("Uploading jars.");
-            uploadJars();
+//            uploadJars();
 
             // start manager
             System.out.println("Starting manager instances.");

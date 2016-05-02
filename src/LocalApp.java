@@ -27,8 +27,11 @@ public class LocalApp {
     private int num_tasks_per_worker;
     private boolean terminate;
 
-    public static final String BUCKET_NAME = "malachi-amir-bucket";
+    // File password for jars encryption.
+    // Remember to change in encryptFiles.sh as well.
     private static final String FILE_PASSWORD = "foofoofoofoo";
+
+    public static final String BUCKET_NAME = "malachi-amir-bucket";
 
 
     private LocalApp(String input_file_name, String output_file_name, String mission_per_worker, boolean terminate) throws IOException {

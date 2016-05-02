@@ -68,13 +68,6 @@ class Utils {
         worker_user_data = loadFromFile("Resources/worker.sh");
         manager_user_data = loadFromFile("Resources/manager.sh");
         manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
-
-        // Upload credentials file to bucket in a secure manner.
-        File credentials_file = new File(CONFIG_CREDENTIALS_FILE_NAME);
-
-        if (!credentials_file.exists()) {
-            throw new IOException("Credentials file not found.");
-        }
     }
 
     /**

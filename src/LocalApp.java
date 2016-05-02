@@ -50,12 +50,13 @@ public class LocalApp {
 
         try {
             Utils.s3_client.createBucket(BUCKET_NAME);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("Error creating bucket : " + e.toString());
         }
 
-        putJar("Resources/Worker.enc", "worker.enc");
-        putJar("Resources/Manager.enc", "manager.enc");
+        putJar("Resources/worker.enc", "worker.enc");
+        putJar("Resources/manager.enc", "manager.enc");
     }
 
     private void putJar(String path, String key) {

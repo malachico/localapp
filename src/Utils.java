@@ -38,8 +38,8 @@ class Utils {
     private static final String CONFIG_KEY_NAME = "kp";
 
     // Bash variables.
-    private static final String BASH_MISSIONS_PER_WORKER = "$$missionsPerWorker$$";
-    private static final String BASH_FILE_PASSWORD = "$$filePassword$$";
+    private static final String BASH_MISSIONS_PER_WORKER = "\\$\\$missionsPerWorker\\$\\$";
+    private static final String BASH_FILE_PASSWORD = "\\$\\$filePassword\\$\\$";
 
     // Queue URL format: x_y_queue_url means x-->y direction queue.
     static String local_manager_queue_url;
@@ -64,10 +64,10 @@ class Utils {
         System.out.println("Init SQS");
         initSqs();
 
-        // Load worker and manager data from file.
+        // Load manager data from file.
         manager_user_data = loadFromFile("Resources/manager.sh");
-        manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
-        manager_user_data.replaceAll(BASH_FILE_PASSWORD, file_password + "");
+        manager_user_data = manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
+        manager_user_data = manager_user_data.replaceAll(BASH_FILE_PASSWORD, file_password + "");
     }
 
     /**

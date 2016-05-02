@@ -125,8 +125,8 @@ public class LocalApp {
             key = randomGenerator.nextInt(Integer.MAX_VALUE) + "";
 
             // Put file in bucket
-            PutObjectRequest req = new PutObjectRequest(bucket_name, key, file);
-            Utils.s3_client.putObject(req);
+            PutObjectRequest request = new PutObjectRequest(bucket_name, key, file);
+            Utils.s3_client.putObject(request);
 
             System.out.println("Uploaded file: " + file.getName());
             System.out.println("Generated key: " + key);

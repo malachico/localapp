@@ -5,6 +5,8 @@ import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.EncryptedPutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
@@ -67,6 +69,16 @@ class Utils {
         worker_user_data = loadFromFile("Resources/worker.sh");
         manager_user_data = loadFromFile("Resources/manager.sh");
         manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
+
+        // Upload credentials file to bucket in a secure manner.
+        System.out.println("Uploading credentials file.");
+        File credentials_file = new File(CONFIG_CREDENTIALS_FILE_NAME);
+        if (!credentials_file.exists()) {
+            throw new IOException("Credentials file not found.");
+        }
+        PutObjectRequest request = new EncryptedPutObjectRequest(LocalApp.BUCKET_NAME, CONFIG_CREDENTIALS_FILE_NAME, credentials_file);
+        Utils.s3_client.putObject(request);
+        System.out.println("Uploaded encrypted credentials file.");
     }
 
     /**

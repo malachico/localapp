@@ -39,6 +39,7 @@ class Utils {
 
     // Bash variables.
     private static final String BASH_MISSIONS_PER_WORKER = "$$missionsPerWorker$$";
+    private static final String BASH_FILE_PASSWORD = "$$filePassword$$";
 
     // Queue URL format: x_y_queue_url means x-->y direction queue.
     static String local_manager_queue_url;
@@ -50,7 +51,7 @@ class Utils {
     public static String manager_user_data;
 
 
-    static void init(String missions_per_worker) throws IOException {
+    static void init(String missions_per_worker, String file_password) throws IOException {
         System.out.println("Init Credentials");
         initCredentials();
 
@@ -66,6 +67,7 @@ class Utils {
         // Load worker and manager data from file.
         manager_user_data = loadFromFile("Resources/manager.sh");
         manager_user_data.replaceAll(BASH_MISSIONS_PER_WORKER, missions_per_worker + "");
+        manager_user_data.replaceAll(BASH_FILE_PASSWORD, file_password + "");
     }
 
     /**

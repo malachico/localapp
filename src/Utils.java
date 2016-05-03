@@ -222,6 +222,8 @@ class Utils {
     public static void exportToHTMLFile(ArrayList<String> lines, String output_file_name) throws IOException {
         BufferedWriter output;
         File file = new File(output_file_name);
+        System.out.println("Creating HTML file: " + file.getAbsoluteFile());
+
         if (file.exists()) {
             // Clean out old file.
             file.delete();
@@ -241,31 +243,35 @@ class Utils {
      *  HTML-encoded string.
      */
     public static String resultsToHtml(ArrayList<String> results) {
-        String data = "";
-        for(String result : results) {
+        StringBuilder data = new StringBuilder();
+        data.append(
+                "<html><head>\n"                             +
+                "<style type=\"text/css\">"                  +
+                ".sentiment-level-0 { color: darkred; }"     +
+                ".sentiment-level-1 { color: red; }"         +
+                ".sentiment-level-2 { color: black; }"       +
+                ".sentiment-level-3 { color: lightgreen; }"  +
+                ".sentiment-level-4 { color: darkgreen; }"   +
+                "div { float: left; }"                       +
+                "</style>\n</head>\n<body>\n");
+
+        for (String result : results) {
             // Split the result string. Structure:
             // 0 - Key.
-            // 1 - Sentiment (1-5).
+            // 1 - Sentiment (0-4).
             // 2 - Entities.
             // 3 - Tweet.
             String[] result_data = result.split("\\|");
 
 
-            data += "<p><div class=\"sentiment-level-" +
+            data.append("\n<p>\n<div class=\"sentiment-level-" +
                     result_data[1] +
-                    "\">" + result_data[3] + "</div>" +
-                    result_data[2] + "</p>";
+                    "\">\n" + result_data[3] + "\n</div>" +
+                    result_data[2] + "\n</p>");
         }
 
-        return "<html><head>" +
-                "<style type=\"text/css\">" +
-                ".sentiment-level-1 { color: darkred; }" +
-                ".sentiment-level-2 { color: red; }" +
-                ".sentiment-level-3 { color: black; }" +
-                ".sentiment-level-4 { color: lightgreen; }" +
-                ".sentiment-level-5 { color: darkgreen; }" +
-                "</style></head><body>" +
-                data +
-                "</body></html>";
+        data.append("\n</body>\n</html>");
+
+        return data.toString();
     }
 }

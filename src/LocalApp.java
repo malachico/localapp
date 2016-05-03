@@ -3,7 +3,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -168,6 +167,8 @@ public class LocalApp {
     private void waitForDone(String key) throws InterruptedException {
         System.out.println("Receiving messages from answers queue.\n");
 
+        ArrayList<String> knownKeys = new ArrayList<String>();
+
         while (true) {
             // Get messages from queue.
             ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(Utils.manager_local_queue_url);
@@ -179,17 +180,28 @@ public class LocalApp {
             // Get messages
             List<Message> messages = Utils.sqs_client.receiveMessage(receiveMessageRequest).getMessages();
             for (Message message : messages) {
+                if (knownKeys.contains(message.getBody())) {
+                    // Silently move on.
+                    continue;
+                }
                 System.out.println("Received a message: " + message.getBody());
 
                 if (message.getBody().equals(key + "|DONE")) {
                     // The message says that the task is done.
 
                     // Delete message from queue and return.
-                    DeleteMessageRequest dms = new DeleteMessageRequest(Utils.manager_local_queue_url, message.getReceiptHandle());
-                    Utils.sqs_client.deleteMessage(dms);
+                    Utils.sqs_client.deleteMessage(Utils.manager_local_queue_url, message.getReceiptHandle());
 
                     System.out.println("Queue is done, starting termination sequence.");
                     return;
+                }
+                else {
+                    System.out.println("Still waiting for done message with ID " + key + ", retrying.");
+
+                    if (message.getBody().contains("|DONE")) {
+                        // Avoid repeating messages.
+                        knownKeys.add(message.getBody());
+                    }
                 }
             }
 
@@ -201,6 +213,7 @@ public class LocalApp {
      * After the manager send done message, then we can download the summary file from S3
      */
     private ArrayList<String> downloadSummary(String key) throws IOException {
+        System.out.println("Downloading summary from bucket.");
         S3Object s3object = Utils.s3_client.getObject(new GetObjectRequest("malachi-amir-bucket", key));
         BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.getObjectContent()));
 
@@ -212,8 +225,8 @@ public class LocalApp {
             lines.add(line);
         }
 
+        System.out.println("Summary downloaded.");
         return lines;
-
     }
 
     /**
@@ -239,7 +252,7 @@ public class LocalApp {
             System.out.println("Manager is down, creating one.");
             // upload manager jar file to s3_client
             System.out.println("Uploading jars.");
-            uploadJars();
+//            uploadJars();
 
             // start manager
             System.out.println("Starting manager instances.");
@@ -265,8 +278,10 @@ public class LocalApp {
         ArrayList<String> lines = downloadSummary(key);
         Utils.exportToHTMLFile(lines, output_file_name);
 
+        System.out.println("Created HTML file.");
 
         if (terminate) {
+            System.out.println("Got termination signal, waiting for stats file.");
             // Download Stat file from S3
             S3Object s3object = null;
             while (s3object == null) {

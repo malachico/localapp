@@ -1,8 +1,5 @@
 import com.amazonaws.services.ec2.model.*;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.*;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -214,7 +211,7 @@ public class LocalApp {
      */
     private ArrayList<String> downloadSummary(String key) throws IOException {
         System.out.println("Downloading summary from bucket.");
-        S3Object s3object = Utils.s3_client.getObject(new GetObjectRequest("malachi-amir-bucket", key));
+        S3Object s3object = Utils.s3_client.getObject(new GetObjectRequest(BUCKET_NAME, key));
         BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.getObjectContent()));
 
         ArrayList<String> lines = new ArrayList<String>();
@@ -226,6 +223,14 @@ public class LocalApp {
         }
 
         System.out.println("Summary downloaded.");
+
+        // Move the file to a subfolder for neatness.
+        System.out.println("Moving summary file.");
+        CopyObjectRequest copyObjRequest = new CopyObjectRequest(BUCKET_NAME, key, BUCKET_NAME, "ZZZ_oldSummaries/" + key);
+        Utils.s3_client.copyObject(copyObjRequest);
+        Utils.s3_client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, key));
+        System.out.println("Bucket is tidy :)");
+
         return lines;
     }
 

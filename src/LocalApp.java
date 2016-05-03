@@ -137,7 +137,6 @@ public class LocalApp {
             Utils.s3_client.putObject(request);
 
             System.out.println("Uploaded file: " + file.getName());
-            System.out.println("Generated key: " + key);
 
         }
         return key;

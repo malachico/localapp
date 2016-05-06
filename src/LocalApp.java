@@ -289,7 +289,11 @@ public class LocalApp {
             // Download Stat file from S3
             S3Object s3object = null;
             while (s3object == null) {
-                s3object = Utils.s3_client.getObject(new GetObjectRequest(BUCKET_NAME, key + "|STATS"));
+                try {
+                    s3object = Utils.s3_client.getObject(new GetObjectRequest(BUCKET_NAME, key + "|STATS"));
+                }catch (Exception AmazonS3Exception){
+                    continue;
+                }
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(s3object.getObjectContent()));
 

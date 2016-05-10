@@ -19,9 +19,12 @@
     * Kill workers.
     * Creates a statistics file, send to S3.
     * Manager dies.
-11. All done.
 
 In a test run, all done within 5 minutes and 16 seconds (including termination).
+
+## Technical details:
+* AMI: ``ami-c229c0a2``
+* Number of tweets per worker: 5
 
 ## Requirements:
 * Did you think for more than 2 minutes about security? Do not send your credentials in plain text!

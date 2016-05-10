@@ -1,7 +1,7 @@
 # Distributed Systems, Assignment 1.
 ### Names:
-- Malachi Cohen 203085295
-- Amir Arbel 302726310
+- Malachi Cohen 
+- Amir Arbel
 
 ## Requirements:
 * Did you think for more than 2 minutes about security? Do not send your credentials in plain text!

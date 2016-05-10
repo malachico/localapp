@@ -12,9 +12,9 @@
     * For every list file key received via SQS, creates a manager thread.
 5. Manager starts workers according to given parameters and amount of tweets to analyze, if needed.
 6. Worker instances initialize, analyze tweets from SQS, sends them back.
-8. Manager receives all the answers from the workers, sends the results file to the local application via S3.
-9. Local application creates HTML file from the results.
-10. If Local application was a termination signal one, manager will start termination procedure:
+7. Manager receives all the answers from the workers, sends the results file to the local application via S3.
+8. Local application creates HTML file from the results.
+9. If Local application was a termination signal one, manager will start termination procedure:
     * Wait for all manager threads to join (stop).
     * Kill workers.
     * Creates a statistics file, send to S3.

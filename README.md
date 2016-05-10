@@ -5,14 +5,17 @@
 
 ## Requirements:
 * Did you think for more than 2 minutes about security? Do not send your credentials in plain text!
- Jars (which include the credentials file) are encrypted and the password is sent from within the application itself. Sent as program variable.
+    - Jars (with the credentials file) are encrypted and the password is sent from within the application itself,
+     received as program variable on execution
 
 ---
+
 * Did you think about scalability? Will your program work properly when 1 million clients
 connected at the same time? How about 2 million? 1 billion? Scalability is very important aspect of the system, be sure it is scalable!
     - Yes, the manager works in parallel. Each task work separately in different thread.
+
 ---
-- What about persistence? What if a node dies? Have you taken care of all possible outcomes in the system?
+* What about persistence? What if a node dies? Have you taken care of all possible outcomes in the system?
     Think of more possible issues that might arise from failures. What did you do to solve it?
     What about broken communications? Be sure to handle all fail-cases!
     - If a node dies and already took a task, it doesn't clear it from the tasks queue immediately. Only when he finish the task.

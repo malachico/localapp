@@ -5,20 +5,20 @@
 
 ## How it works?
 1. Local application sends pre-encrypted jars to S3, with bash instructions how to decrypt and run them. (If none are available).
-    1a. If termination signal was given to local application upon creation, sends a termination signal.
+    * If termination signal was given to local application upon creation, sends a termination signal.
 2. Local application uploads the list of tweet links to S3, and send the list's key to the manager via SQS.
 3. Local application creates a manager instance on EC2. (If one doesn't exists).
 4. Manager instance receives the key of the list in S3. Downloads it and deletes it from S3.
-    4a. For every list file key received via SQS, creates a manager thread.
+    * For every list file key received via SQS, creates a manager thread.
 5. Manager starts workers according to given parameters and amount of tweets to analyze, if needed.
 6. Worker instances initialize, analyze tweets from SQS, sends them back.
 8. Manager receives all the answers from the workers, sends the results file to the local application via S3.
 9. Local application creates HTML file from the results.
 10. If Local application was a termination signal one, manager will start termination procedure:
-    10a. Wait for all manager threads to join (stop).
-    10b. Kill workers.
-    10c. Creates a statistics file, send to S3.
-    10d. Manager dies.
+    * Wait for all manager threads to join (stop).
+    * Kill workers.
+    * Creates a statistics file, send to S3.
+    * Manager dies.
 11. All done.
 
 ## Requirements:

@@ -21,6 +21,8 @@
     * Manager dies.
 11. All done.
 
+In a test run, all done within 5 minutes and 16 seconds (including termination).
+
 ## Requirements:
 * Did you think for more than 2 minutes about security? Do not send your credentials in plain text!
     - Jars (with the credentials file) are encrypted and the password is sent from within the application itself,

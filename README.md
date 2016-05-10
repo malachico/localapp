@@ -3,7 +3,7 @@
 - Malachi Cohen
 - Amir Arbel
 
-## How it works?
+## How does it work?
 1. Local application sends pre-encrypted jars to S3, with bash instructions how to decrypt and run them. (If none are available).
     * If termination signal was given to local application upon creation, sends a termination signal.
 2. Local application uploads the list of tweet links to S3, and send the list's key to the manager via SQS.
